@@ -3,36 +3,6 @@ using System;
 
 namespace Overseer.Models
 {
-    public enum AccessLevel
-    {
-        Readonly = 0,
-        
-        //TODO: Add support for a user access level
-        //User = 1,
-
-        Administrator = 2,
-    }
-
-    /// <summary>
-    /// This is the user object that is send to and from the client
-    /// </summary>
-    public class UserDisplay
-    {
-        public int Id { get; set; }
-
-        public string Username { get; set; }
-
-        public string Password { get; set; }
-
-        public int? SessionLifetime { get; set; }
-
-        public string Token { get; set; }
-
-        public bool IsLoggedIn { get; set; }
-
-        public AccessLevel AccessLevel { get; set; }
-    }
-
     /// <summary>
     /// This is the user as represented in the database
     /// </summary>
@@ -72,22 +42,6 @@ namespace Overseer.Models
                 IsLoggedIn = !this.IsTokenExpired(),
                 AccessLevel = AccessLevel
             };
-        }
-    }
-
-    public static class UserExtensions
-    {
-        public static bool IsTokenExpired(this User user)
-        {
-            //if the user or token is null it's considered expired
-            if (string.IsNullOrWhiteSpace(user?.Token)) return true;
-
-            //if there is no expiration set the, with the presence of a token, the user
-            //is configured for indefinite session length
-            if (!user.TokenExpiration.HasValue) return false;
-
-            //otherwise the tokens is expired if it's expiration date is less than the current UTC time
-            return user.TokenExpiration.Value < DateTime.UtcNow;
         }
     }
 }

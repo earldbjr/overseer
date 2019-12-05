@@ -2,23 +2,6 @@
 
 namespace Overseer.Models
 {
-    public enum MachineState
-    {
-        Offline = 0,
-        Idle = 1,
-        Paused = 2,
-        Operational = 3
-    }
-
-    public class TemperatureStatus
-    {
-        public int HeaterIndex { get; set; }
-
-        public float Actual { get; set; }
-
-        public float Target { get; set; }
-    }
-
     public class MachineStatus
     {
         /// <summary>

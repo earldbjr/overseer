@@ -2,13 +2,6 @@
 
 namespace Overseer.Models
 {
-    public enum MachineToolType
-    {
-        Undetermined, 
-        Heater,
-        Extruder
-    }
-
     public class MachineTool
     {
         public static IReadOnlyList<string> AuxiliaryHeaterTypes = new List<string> { "bed", "chamber", "cabinet" };
