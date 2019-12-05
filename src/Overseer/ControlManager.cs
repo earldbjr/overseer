@@ -37,14 +37,13 @@ namespace Overseer
             var provider = _machineProviderManager.GetProvider(machine);
             var tool = machine.Tools.First(x => x.ToolType == MachineToolType.Heater && x.Index == heaterIndex);            
 
-            if (tool.Name.ToLower() == "bed")
-            {
+            if (tool.IsBed)
                 return provider.SetBedTemperature(temperature);
-            }
-            else
-            {
-                return provider.SetToolTemperature(heaterIndex, temperature);
-            }
+
+            if (tool.IsChamber)
+                return provider.SetChamberTemperature(temperature);
+
+            return provider.SetToolTemperature(heaterIndex, temperature);
         }
 
         public Task SetFeedRate(int machineId, int feedRate)

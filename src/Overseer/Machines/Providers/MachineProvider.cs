@@ -35,6 +35,11 @@ namespace Overseer.Machines.Providers
             return ExecuteGcode($"M140 S{targetTemperature}");
         }
 
+        public Task SetChamberTemperature(int targetTemperature)
+        {
+            return ExecuteGcode($"M141 S{targetTemperature}");
+        }
+
         public virtual Task SetFlowRate(int extruderIndex, int percentage)
         {
             return ExecuteGcode($"M221 D{extruderIndex} S{percentage}");

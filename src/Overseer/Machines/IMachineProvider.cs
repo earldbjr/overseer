@@ -12,6 +12,8 @@ namespace Overseer.Machines
 
         Task SetBedTemperature(int targetTemperature);
 
+        Task SetChamberTemperature(int targetTemperature);
+
         Task SetFlowRate(int extruderIndex, int percentage);
 
         Task SetFeedRate(int percentage);

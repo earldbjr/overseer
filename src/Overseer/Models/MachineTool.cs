@@ -12,6 +12,10 @@ namespace Overseer.Models
 
         public string Name { get; set; }
 
+        public bool IsBed => Name == "bed";
+
+        public bool IsChamber => Name == "chamber" || Name == "cabinet";
+
         public MachineTool() { }
 
         public MachineTool(MachineToolType toolType, int index)
