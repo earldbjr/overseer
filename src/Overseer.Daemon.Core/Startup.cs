@@ -1,15 +1,17 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.Extensions.Hosting;
 using Nancy.Owin;
-using Newtonsoft.Json;
 using Overseer.Daemon.Bootstrapping;
 using Overseer.Daemon.Hubs;
 using Overseer.Models;
 using System;
+using Newtonsoft.Json;
 
 namespace Overseer.Daemon
 {
@@ -27,21 +29,23 @@ namespace Overseer.Daemon
         {
             services.AddSpaStaticFiles(configuration =>
             {
-                // In production, the Angular files will be served from this directory
                 configuration.RootPath = "OverseerUI";                
             });
 
             services.AddAuthentication(OverseerAuthenticationOptions.Setup)
                 .UseOverseerAuthentication();
 
-            services.AddSignalR().AddJsonProtocol(options => 
+            services.AddSignalR().AddNewtonsoftJsonProtocol(options =>
             {
                 options.PayloadSerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-            });            
+            });
+
+            services.Configure<IISServerOptions>(options => options.AllowSynchronousIO = true);
+            services.Configure<KestrelServerOptions>(options => options.AllowSynchronousIO = true);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, OverseerBootstrapper bootstrapper, IHubContext<StatusHub> statusHub)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, OverseerBootstrapper bootstrapper, IHubContext<StatusHub> statusHub)
         {
             bootstrapper.Container.Register<Action<MachineStatus>>((c, n) =>
             {
@@ -53,8 +57,6 @@ namespace Overseer.Daemon
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseSpaStaticFiles();
-
             app.Map("/api", builder =>
             {
                 builder.UseAuthentication();
@@ -63,22 +65,24 @@ namespace Overseer.Daemon
 
             app.Map("/push", builder =>
             {
-                builder.UseSignalR(routes =>
+                builder.UseRouting();
+                builder.UseEndpoints(endpoints =>
                 {
-                    routes.MapHub<StatusHub>("/status");
+                    endpoints.MapHub<StatusHub>("/status");
                 });
             });
 
-            app.UseSpa(spa =>
-            {                
+            app.UseSpaStaticFiles();
+            app.UseSpa(spa => 
+            {
                 if (env.IsDevelopment())
                 {
                     spa.Options.SourcePath = "../OverseerUI";
                     spa.UseAngularCliServer(npmScript: "start");
-                }
+                } 
                 else
                 {
-                    spa.Options.SourcePath = "/OverseerUI";
+                    spa.Options.SourcePath = "OverseerUI";
                 }
             });
         }
