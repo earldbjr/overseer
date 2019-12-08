@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Overseer.Models;
 
 namespace Overseer
@@ -9,8 +10,10 @@ namespace Overseer
 
         event EventHandler<EventArgs<MachineStatus>> StatusUpdate;
         
-        void PollProviders();
+        Task PollMachines();
+
         void StartMonitoring();
+        
         void StopMonitoring();
     }
 }

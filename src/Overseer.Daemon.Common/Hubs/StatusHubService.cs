@@ -25,15 +25,8 @@ namespace Overseer.Daemon.Hubs
             {
                 Log.Info("A client connected, initiating monitoring...");
                 _monitoringService.StartMonitoring();
-                _monitoringService.PollProviders();
+                _monitoringService.PollMachines();
             }
-        }
-
-        public void PollProviders(string connectionId)
-        {
-            if (MonitoringGroup.Contains(connectionId)) return;
-
-            _monitoringService.PollProviders();
         }
 
         public void StopMonitoring(string connectionId)

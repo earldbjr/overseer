@@ -3,6 +3,7 @@ using Overseer.Machines;
 using Overseer.Models;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Timer = System.Timers.Timer;
@@ -44,7 +45,7 @@ namespace Overseer
 
             var settings = _configurationManager.GetApplicationSettings();
             _timer = new Timer(settings.Interval);
-            _timer.Elapsed += (sender, args) => PollProviders();
+            _timer.Elapsed += (sender, args) => PollMachines();
         }
 
         public void StartMonitoring()
@@ -68,8 +69,10 @@ namespace Overseer
             Log.Info("Monitoring suspended.");
         }
         
-        public void PollProviders()
+        public Task PollMachines()
         {
+            List<Task> tasks = new List<Task>();
+
             try
             {
                 //cancel any pending update that hasn't completed, it's likely timing out
@@ -78,10 +81,8 @@ namespace Overseer
                 //poll all the providers
                 foreach (var provider in _providerManager.GetProviders(_machineManager.GetMachines()))
                 {
-                    var cancellation = new CancellationTokenSource();
-                    provider.GetStatus(cancellation.Token)
-                        .ContinueWith(RaiseStatusUpdate, cancellation.Token)
-                        .DoNotAwait();
+                    var cancellation = new CancellationTokenSource();                    
+                    tasks.Add(provider.GetStatus(cancellation.Token).ContinueWith(RaiseStatusUpdate, cancellation.Token));
 
                     _pendingUpdates[provider.MachineId] = cancellation;
                 }
@@ -90,6 +91,8 @@ namespace Overseer
             {
                 Log.Error("Monitoring Error", ex);
             }
+
+            return Task.WhenAll(tasks);
         }
 
         void RaiseStatusUpdate(Task<MachineStatus> completedTask)

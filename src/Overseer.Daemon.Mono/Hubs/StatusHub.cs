@@ -20,11 +20,6 @@ namespace Overseer.Daemon.Hubs
             _statusHubService.StartMonitoring(Context.ConnectionId);
         }
 
-        public void PollProviders()
-        {
-            _statusHubService.PollProviders(Context.ConnectionId);
-        }
-
         public override Task OnDisconnected(bool stopCalled)
         {
             _statusHubService.StopMonitoring(Context.ConnectionId);

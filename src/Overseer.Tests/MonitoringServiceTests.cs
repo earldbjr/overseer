@@ -80,10 +80,7 @@ namespace Overseer.Tests
                 statuses.Add(args.Data);
             };
 
-            monitoringService.PollProviders();
-            //The poll providers method is configured to run the task in the back ground and then 
-            //push the updates with an event. So wait a big to let the tasks complete. 
-            await Task.Delay(machineCount * 10);    
+            await monitoringService.PollMachines();  
 
             Assert.AreEqual(machineCount, statuses.Count);
             for (var i = 1; i <= machineCount; i++)
